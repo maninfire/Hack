@@ -2,6 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
+    sourceSets{
+        main{
+            jniLibs.srcDirs=['libs']
+        }
+    }
     defaultConfig {
         applicationId "com.a360.zhangzhenguo.hack"
         minSdkVersion 19

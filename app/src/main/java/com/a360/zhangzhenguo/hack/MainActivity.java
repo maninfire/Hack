@@ -47,10 +47,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Cmd();
+        Cmd();
 
         //HttpRequestUtil.test();
-        GetImage.loadimage();
+        //GetImage.loadimage();
 
         // Example of a call to a native method
         //SendMess();
