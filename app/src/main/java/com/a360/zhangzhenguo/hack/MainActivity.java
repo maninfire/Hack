@@ -1,39 +1,40 @@
 package com.a360.zhangzhenguo.hack;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+
+import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.ContentObserver;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
-import android.telephony.SmsMessage;
-import android.content.BroadcastReceiver;
-import android.widget.Toast;
+
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import static com.a360.zhangzhenguo.hack.RSACryptography.*;
-import static com.a360.zhangzhenguo.hack.RSACryptography.encryptWord2;
 import static com.a360.zhangzhenguo.hack.RSACryptography.getPrivateKey;
 import static com.a360.zhangzhenguo.hack.RSACryptography.getPublicKey;
 import static com.a360.zhangzhenguo.hack.RSACryptography.privateKeyString;
 import static com.a360.zhangzhenguo.hack.RSACryptography.publicKeyString;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+    private Button btn_regDivice,btn_unRegDivice,btn_lockScreen;
+    private DevicePolicyManager devicePolicyManager;
+    public ComponentName componentName;//权限监听器
+    private boolean flag;
+
     private static String SENT_SMS_ACTION = "SENT_SMS_ACTION";
     private static String DELIVERED_SMS_ACTION = "DELIVERED_SMS_ACTION";
     private static final String TAG = "yjj";
@@ -56,6 +57,58 @@ public class MainActivity extends Activity {
         //SendMess();
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
+
+        btn_regDivice = (Button)findViewById(R.id.btn_regDivice);
+        btn_regDivice.setOnClickListener(this);
+        btn_unRegDivice = (Button)findViewById(R.id.btn_unRegDivice);
+        btn_unRegDivice.setOnClickListener(this);
+        btn_lockScreen = (Button)findViewById(R.id.btn_lockScreen);
+        btn_lockScreen.setOnClickListener(this);
+        devicePolicyManager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        componentName =  new ComponentName(this,DeviceManagerBC.class);//用广播接收器实例化一个系统组件
+        flag = devicePolicyManager.isAdminActive(componentName);//判断这个应用是否激活了设备管理器
+        if(flag){
+            btn_regDivice.setVisibility(View.GONE);
+            btn_lockScreen.setVisibility(View.VISIBLE);
+            btn_unRegDivice.setVisibility(View.VISIBLE);
+        }else{
+            btn_regDivice.setVisibility(View.VISIBLE);
+            btn_lockScreen.setVisibility(View.GONE);
+            btn_unRegDivice.setVisibility(View.GONE);
+        }
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.btn_regDivice:
+                Intent i = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);//激活系统设备管理器
+                i.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);//注册系统组件
+                startActivity(i);
+                break;
+            case R.id.btn_unRegDivice:
+                devicePolicyManager.removeActiveAdmin(componentName);//注销系统组件
+                this.finish();
+                break;
+            case R.id.btn_lockScreen:
+                devicePolicyManager.lockNow();
+                this.finish();
+                break;
+        }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        boolean flagChanged = devicePolicyManager.isAdminActive(componentName);//判断这个应用是否激活了设备管理器
+        if(flagChanged){
+            btn_regDivice.setVisibility(View.GONE);
+            btn_lockScreen.setVisibility(View.VISIBLE);
+            btn_unRegDivice.setVisibility(View.VISIBLE);
+        }else{
+            btn_regDivice.setVisibility(View.VISIBLE);
+            btn_lockScreen.setVisibility(View.GONE);
+            btn_unRegDivice.setVisibility(View.GONE);
+        }
     }
     public void ReciveMess(){
         Receiver mReceiver = null; // 广播接收类 对象
