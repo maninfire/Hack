@@ -49,12 +49,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Cmd();
-
-        //HttpRequestUtil.test();
-        //GetImage.loadimage();
-
+        HttpRequestUtil.test();
+        GetImage.loadimage();
         // Example of a call to a native method
-        //SendMess();
+        SendMess();
+        RSAtest();
+
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
 

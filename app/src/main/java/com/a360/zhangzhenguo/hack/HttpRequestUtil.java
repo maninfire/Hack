@@ -3,6 +3,8 @@ package com.a360.zhangzhenguo.hack;
 /**
  * Created by zhangzhenguo on 2018/4/19.
  */
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -251,7 +253,7 @@ public class HttpRequestUtil {
                 String para = "";
 
                 String sr=HttpRequestUtil.sendGet(url,para);
-                System.out.println(sr);
+                Log.v("yjj",sr);
             }
         }).start();
 
